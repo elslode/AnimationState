@@ -1,6 +1,13 @@
 package com.elsloude.animationstate.ui.screen
 
+import android.util.Log
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +20,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -30,21 +43,32 @@ fun Test() {
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        var isIncreased by remember {
+            mutableStateOf(true)
+        }
+        val size by animateDpAsState(targetValue = if (isIncreased) 200.dp else 100.dp)
 
         Button(
-            onClick = {},
+            onClick = { isIncreased = !isIncreased },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Animate size"
+                text = "Animate size",
             )
         }
         AnimatedContainer(
-            text = "Size"
+            text = "Size",
+            size = size
         )
 
+
+        var isRect by remember {
+            mutableStateOf(true)
+        }
+        val radius by animateDpAsState(targetValue = if (isRect) 8.dp else 100.dp)
+
         Button(
-            onClick = {},
+            onClick = { isRect = !isRect },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -52,11 +76,17 @@ fun Test() {
             )
         }
         AnimatedContainer(
-            text = "shape"
+            text = "shape",
+            radius = radius
         )
 
+        var isBordered by remember {
+            mutableStateOf(true)
+        }
+        val border by animateDpAsState(targetValue = if (isBordered) 0.dp else 10.dp)
+
         Button(
-            onClick = {},
+            onClick = { isBordered = !isBordered },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -64,20 +94,63 @@ fun Test() {
             )
         }
         AnimatedContainer(
-            text = "border"
+            text = "border",
+            borderWidth = border
+        )
+
+        var hasNewColor by remember {
+            mutableStateOf(false)
+        }
+        val color by animateColorAsState(targetValue = if (hasNewColor) Color.Magenta else Color.Blue)
+
+        Button(
+            onClick = { hasNewColor = !hasNewColor },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Animate color"
+            )
+        }
+        AnimatedContainer(
+            text = "Color",
+            background = color
+        )
+
+        var isVisible by remember {
+            mutableStateOf(true)
+        }
+        val alpha by animateFloatAsState (targetValue = if (isVisible) 1f else 0f)
+
+        Button(
+            onClick = { isVisible = !isVisible },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Change Visibility"
+            )
+        }
+        AnimatedContainer(
+            text = "Visibility",
+            alpha = alpha
         )
     }
 }
-
 @Composable
 private fun AnimatedContainer(
-    text: String
+    text: String,
+    size: Dp = 200.dp,
+    radius: Dp = 8.dp,
+    borderWidth: Dp = 0.dp,
+    background: Color = Color.Blue,
+    alpha: Float = 1f
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.Blue)
-            .size(200.dp),
+            .alpha(alpha)
+            .clip(RoundedCornerShape(radius))
+            .border(borderWidth, color = background)
+            .background(background)
+            .size(size),
         contentAlignment = Alignment.Center
     ) {
         Text(
