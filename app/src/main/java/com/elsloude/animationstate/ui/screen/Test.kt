@@ -3,9 +3,17 @@ package com.elsloude.animationstate.ui.screen
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -28,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -46,7 +55,24 @@ fun Test() {
         var isIncreased by remember {
             mutableStateOf(true)
         }
-        val size by animateDpAsState(targetValue = if (isIncreased) 200.dp else 100.dp)
+
+        val infiniteTransition = rememberInfiniteTransition()
+        val size by infiniteTransition.animateFloat(
+            initialValue = 200f,
+            targetValue = 100f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+
+        val rotation by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing)
+            )
+        )
 
         Button(
             onClick = { isIncreased = !isIncreased },
@@ -58,14 +84,16 @@ fun Test() {
         }
         AnimatedContainer(
             text = "Size",
-            size = size
+            size = size.dp
         )
-
 
         var isRect by remember {
             mutableStateOf(true)
         }
-        val radius by animateDpAsState(targetValue = if (isRect) 8.dp else 100.dp)
+
+        val radius by animateIntAsState(
+            targetValue = if (isRect) 4 else 50
+        )
 
         Button(
             onClick = { isRect = !isRect },
@@ -77,7 +105,8 @@ fun Test() {
         }
         AnimatedContainer(
             text = "shape",
-            radius = radius
+            radiusPercent = radius,
+            rotation = rotation
         )
 
         var isBordered by remember {
@@ -139,15 +168,17 @@ fun Test() {
 private fun AnimatedContainer(
     text: String,
     size: Dp = 200.dp,
-    radius: Dp = 8.dp,
+    radiusPercent: Int = 4,
     borderWidth: Dp = 0.dp,
     background: Color = Color.Blue,
-    alpha: Float = 1f
+    alpha: Float = 1f,
+    rotation: Float = 0f
 ) {
     Box(
         modifier = Modifier
+            .rotate(rotation)
             .alpha(alpha)
-            .clip(RoundedCornerShape(radius))
+            .clip(RoundedCornerShape(radiusPercent))
             .border(borderWidth, color = background)
             .background(background)
             .size(size),
